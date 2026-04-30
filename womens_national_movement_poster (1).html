@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Women's Participation in the Indian National Movement</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #050510;
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 30px 20px;
+    overflow-y: auto;
+  }
+
+  /* ── Fullscreen: remove padding/centering, fill screen ── */
+  body.is-fullscreen {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  body.is-fullscreen .poster {
+    max-width: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+
+  /* ── Window Controls Overlay ── */
+  #wc-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: linear-gradient(180deg, rgba(5,5,16,0.97) 0%, rgba(5,5,16,0.0) 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+
+  #wc-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .wc-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(212,160,23,0.7);
+  }
+
+  .wc-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wc-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+    backdrop-filter: blur(4px);
+  }
+
+  .wc-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+
+  .wc-btn svg { width: 14px; height: 14px; }
+
+  /* minimize = amber */
+  .wc-btn.minimize { border-color: rgba(255,189,46,0.5); }
+  .wc-btn.minimize svg { fill: #ffbd2e; }
+  .wc-btn.minimize:hover { background: rgba(255,189,46,0.2); }
+
+  /* maximize = green */
+  .wc-btn.maximize { border-color: rgba(40,200,70,0.5); }
+  .wc-btn.maximize svg { fill: #28c846; }
+  .wc-btn.maximize:hover { background: rgba(40,200,70,0.2); }
+
+  /* close = red */
+  .wc-btn.close-btn { border-color: rgba(255,95,87,0.5); }
+  .wc-btn.close-btn svg { fill: #ff5f57; }
+  .wc-btn.close-btn:hover { background: rgba(255,95,87,0.2); }
+
+  /* ESC hint toast */
+  #esc-hint {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    border: 1px solid rgba(212,160,23,0.3);
+    color: rgba(255,255,255,0.6);
+    font-family: 'Crimson Pro', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1s ease;
+    backdrop-filter: blur(6px);
+  }
+
+  #esc-hint.hidden { opacity: 0; }
+
+  /* ── POSTER ── */
+  .poster {
+    width: 100%;
+    max-width: 1100px;
+    background: linear-gradient(160deg, #0d0920 0%, #1a0a2e 40%, #0a1a1a 100%);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212,160,23,0.15);
+    box-shadow: 0 0 80px rgba(212,160,23,0.08), 0 40px 100px rgba(0,0,0,0.7);
+  }
+
+  .bg-glow {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 20%, rgba(212,160,23,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 85% 75%, rgba(160,50,50,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(80,60,180,0.05) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .bg-grain {
+    position: absolute; inset: 0; opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .poster > *:not(.bg-glow):not(.bg-grain) { position: relative; z-index: 1; }
+
+  .mandala-wrap { text-align: center; padding: 24px 0 0; }
+
+  .header { text-align: center; padding: 14px 40px 20px; }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'Crimson Pro', serif;
+    font-size: 10.5px; letter-spacing: 5px; text-transform: uppercase;
+    color: #d4a017; border: 1px solid rgba(212,160,23,0.35);
+    padding: 5px 22px; margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-size: clamp(26px, 4.5vw, 50px); font-weight: 900;
+    color: #ffffff; line-height: 1.12; letter-spacing: -0.5px;
+    text-shadow: 0 4px 30px rgba(212,160,23,0.25);
+  }
+
+  .header h1 .gold { color: #d4a017; }
+
+  .header-sub {
+    font-size: 12px; color: rgba(255,255,255,0.38);
+    letter-spacing: 3px; text-transform: uppercase; margin-top: 10px;
+  }
+
+  .divider { display: flex; align-items: center; gap: 14px; margin: 6px 40px 20px; }
+  .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,160,23,0.6), transparent); }
+  .divider-diamond { width: 7px; height: 7px; background: #d4a017; transform: rotate(45deg); flex-shrink: 0; }
+  .divider-dot { width: 3px; height: 3px; background: rgba(212,160,23,0.5); transform: rotate(45deg); flex-shrink: 0; }
+
+  .cards-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; padding: 0 20px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-top: 2.5px solid var(--accent);
+    border-radius: 3px; padding: 16px 14px 14px;
+    position: relative; transition: background 0.25s, transform 0.2s;
+  }
+
+  .card:hover { background: rgba(255,255,255,0.065); transform: translateY(-2px); }
+
+  .card-num {
+    font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 900;
+    color: var(--accent); opacity: 0.11; position: absolute;
+    top: 4px; right: 10px; line-height: 1; user-select: none;
+  }
+
+  .card-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--accent);
+    margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+  }
+
+  .card-icon svg { width: 13px; height: 13px; fill: var(--accent); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700;
+    color: var(--accent); line-height: 1.35; margin-bottom: 9px; letter-spacing: 0.1px;
+  }
+
+  .card-rule { height: 1px; background: rgba(255,255,255,0.07); margin-bottom: 9px; }
+
+  .card-content { font-size: 11.5px; color: rgba(255,255,255,0.62); line-height: 1.6; margin-bottom: 10px; }
+  .card-content ul { list-style: none; padding: 0; }
+  .card-content ul li { padding-left: 12px; position: relative; margin-bottom: 3px; }
+  .card-content ul li::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 4px; height: 4px; background: var(--accent); opacity: 0.6; transform: rotate(45deg);
+  }
+
+  .card-figures {
+    font-family: 'Crimson Pro', serif; font-style: italic; font-size: 11px;
+    color: rgba(255,255,255,0.82); padding: 6px 0 4px 10px;
+    border-left: 2px solid var(--accent); line-height: 1.5;
+  }
+
+  .timeline-wrap { margin: 14px 20px 0; }
+
+  .timeline-strip {
+    background: rgba(212,160,23,0.05); border: 1px solid rgba(212,160,23,0.18);
+    border-radius: 3px; display: flex; align-items: stretch; overflow: hidden;
+  }
+
+  .tl-item {
+    flex: 1; padding: 10px 8px; text-align: center;
+    border-right: 1px solid rgba(212,160,23,0.12); transition: background 0.2s;
+  }
+  .tl-item:last-child { border-right: none; }
+  .tl-item:hover { background: rgba(212,160,23,0.08); }
+
+  .tl-year { font-family: 'Playfair Display', serif; font-size: 12px; font-weight: 700; color: #d4a017; display: block; margin-bottom: 2px; }
+  .tl-event { font-size: 9.5px; color: rgba(255,255,255,0.42); display: block; line-height: 1.3; }
+
+  .footer { text-align: center; padding: 18px 40px 24px; }
+  .footer-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); margin-bottom: 14px; }
+  .footer-quote { font-family: 'Playfair Display', serif; font-style: italic; font-size: 13.5px; color: rgba(255,255,255,0.4); letter-spacing: 0.3px; line-height: 1.7; }
+  .footer-quote em { color: rgba(212,160,23,0.7); font-style: normal; }
+  .footer-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.18); margin-top: 10px; }
+
+  .c1{--accent:#d4a017} .c2{--accent:#c0504a} .c3{--accent:#5b9bd5} .c4{--accent:#70a845}
+  .c5{--accent:#b07ccd} .c6{--accent:#e07b39} .c7{--accent:#3cbfad} .c8{--accent:#d4a017}
+
+  @media print {
+    body { background: #0d0920; padding: 0; }
+    .poster { box-shadow: none; max-width: 100%; border: none; }
+    #wc-overlay, #esc-hint { display: none; }
+    .card:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Window Controls Overlay (shown on ESC) -->
+<div id="wc-overlay">
+  <div class="wc-title">Women's Participation · Indian National Movement</div>
+  <div class="wc-buttons">
+    <button class="wc-btn minimize" title="Minimize" onclick="window.blur(); window.open('','_self'); window.close();">
+      <svg viewBox="0 0 14 14"><rect x="1" y="6" width="12" height="2" rx="1"/></svg>
+    </button>
+    <button class="wc-btn maximize" title="Toggle Fullscreen" onclick="toggleFullscreen()">
+      <svg viewBox="0 0 14 14"><path d="M2 2h4v2H4v2H2V2zm6 0h4v4h-2V4h-2V2zM2 8h2v2h2v2H2V8zm8 2h2v4H8v-2h2v-2z"/></svg>
+    </button>
+    <button class="wc-btn close-btn" title="Close" onclick="window.close()">
+      <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="#ff5f57" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ESC hint -->
+<div id="esc-hint">Press ESC to show controls</div>
+
+<div class="poster">
+  <div class="bg-glow"></div>
+  <div class="bg-grain"></div>
+
+  <!-- Mandala -->
+  <div class="mandala-wrap">
+    <svg width="100" height="44" viewBox="0 0 100 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="22" rx="8" ry="8" fill="none" stroke="#d4a017" stroke-width="0.8" opacity="0.7"/>
+      <ellipse cx="50" cy="22" rx="4" ry="4" fill="none" stroke="#d4a017" stroke-width="0.5" opacity="0.5"/>
+      <line x1="50" y1="2" x2="50" y2="13" stroke="#d4a017" stroke-width="0.7" opacity="0.6"/>
+      <line x1="50" y1="31" x2="50" y2="42" stroke="#d4a017" stroke-width="0.7" opacity="0.6"/>
+      <line x1="8"  y1="22" x2="19" y2="22" stroke="#d4a017" stroke-width="0.7" opacity="0.6"/>
+      <line x1="81" y1="22" x2="92" y2="22" stroke="#d4a017" stroke-width="0.7" opacity="0.6"/>
+      <line x1="16" y1="6"  x2="24" y2="14" stroke="#d4a017" stroke-width="0.5" opacity="0.45"/>
+      <line x1="76" y1="6"  x2="68" y2="14" stroke="#d4a017" stroke-width="0.5" opacity="0.45"/>
+      <line x1="16" y1="38" x2="24" y2="30" stroke="#d4a017" stroke-width="0.5" opacity="0.45"/>
+      <line x1="76" y1="38" x2="68" y2="30" stroke="#d4a017" stroke-width="0.5" opacity="0.45"/>
+      <circle cx="50" cy="22" r="2.5" fill="#d4a017" opacity="0.8"/>
+      <circle cx="8"  cy="22" r="1.5" fill="#d4a017" opacity="0.35"/>
+      <circle cx="92" cy="22" r="1.5" fill="#d4a017" opacity="0.35"/>
+      <circle cx="50" cy="2"  r="1.5" fill="#d4a017" opacity="0.35"/>
+      <circle cx="50" cy="42" r="1.5" fill="#d4a017" opacity="0.35"/>
+    </svg>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">Group Poster Presentation · Indian History</div>
+    <h1>Women's Participation in the<br><span class="gold">Indian National Movement</span></h1>
+    <div class="header-sub">A Comprehensive Study &nbsp;·&nbsp; 8 Thematic Sections &nbsp;·&nbsp; History of Modern India</div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-dot"></div>
+    <div class="divider-diamond"></div>
+    <div class="divider-dot"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- 8 Cards -->
+  <div class="cards-grid">
+
+    <div class="card c1">
+      <div class="card-num">01</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 2L9.1 8.7 2 9.3l5.3 4.7L5.8 21 12 17.3 18.2 21l-1.5-7L22 9.3l-7.1-.6L12 2z"/></svg></div>
+      <div class="card-title">Historical Background &amp; Early Awakening</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>19th-century social reform movements</li>
+        <li>Education &amp; widow remarriage agitations</li>
+        <li>First wave of women's consciousness</li>
+        <li>Foundation for political participation</li>
+      </ul></div>
+      <div class="card-figures">Savitribai Phule &nbsp;·&nbsp; Pandita Ramabai</div>
+    </div>
+
+    <div class="card c2">
+      <div class="card-num">02</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22c-4.4 0-8-3.6-8-8 0-3 1.7-5.6 4.2-7L12 2l3.8 5C18.3 8.4 20 11 20 14c0 4.4-3.6 8-8 8z"/></svg></div>
+      <div class="card-title">Non-Cooperation Movement (1920)</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Picketing liquor shops &amp; burning foreign cloth</li>
+        <li>Mass women joining hartals &amp; processions</li>
+        <li>Gandhi mobilises women as freedom soldiers</li>
+        <li>Breaking purdah through public action</li>
+      </ul></div>
+      <div class="card-figures">Kasturba Gandhi &nbsp;·&nbsp; Sarojini Naidu</div>
+    </div>
+
+    <div class="card c3">
+      <div class="card-num">03</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M3 20h18L12 4 3 20zm9-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+      <div class="card-title">Salt Satyagraha &amp; Civil Disobedience</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Dandi March 1930 — thousands join</li>
+        <li>Raids on salt depots across India</li>
+        <li>Women courting arrest en masse</li>
+        <li>Cross-class defiance of the empire</li>
+      </ul></div>
+      <div class="card-figures">Kamaladevi Chattopadhyay &nbsp;·&nbsp; Avantikabai</div>
+    </div>
+
+    <div class="card c4">
+      <div class="card-num">04</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg></div>
+      <div class="card-title">Quit India Movement (1942)</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Underground resistance networks</li>
+        <li>Congress flag hoisted at Gowalia Tank</li>
+        <li>Secret radio broadcasts to masses</li>
+        <li>Women leading local uprisings</li>
+      </ul></div>
+      <div class="card-figures">Aruna Asaf Ali &nbsp;·&nbsp; Usha Mehta</div>
+    </div>
+
+    <div class="card c5">
+      <div class="card-num">05</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M6.92 5H5L14 2l-3 9-1.63-4.09A5 5 0 0 0 6.92 5zm14.66 14.25L3.27 5.04l1.41-1.41 18.31 14.21-1.41 1.41z"/></svg></div>
+      <div class="card-title">Revolutionary Nationalism &amp; Armed Struggle</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Armed resistance beyond Gandhian path</li>
+        <li>Bomb-throwing &amp; revolutionary acts</li>
+        <li>INA — Rani of Jhansi Regiment</li>
+        <li>Ultimate sacrifice for independence</li>
+      </ul></div>
+      <div class="card-figures">Pritilata Waddedar &nbsp;·&nbsp; Lakshmi Sahgal &nbsp;·&nbsp; Kalpana Datta</div>
+    </div>
+
+    <div class="card c6">
+      <div class="card-num">06</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+      <div class="card-title">Women's Organizations &amp; Political Platforms</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Women's Indian Association — 1917</li>
+        <li>All India Women's Conference — 1927</li>
+        <li>Demand for women's suffrage</li>
+        <li>Legal advocacy &amp; public mobilisation</li>
+      </ul></div>
+      <div class="card-figures">Annie Besant &nbsp;·&nbsp; Margaret Cousins</div>
+    </div>
+
+    <div class="card c7">
+      <div class="card-num">07</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+      <div class="card-title">Women from Marginalized Communities</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Dalit &amp; tribal women faced double oppression</li>
+        <li>Local agitations &amp; grassroots movements</li>
+        <li>Underrepresented in official histories</li>
+        <li>Integral to the freedom fabric</li>
+      </ul></div>
+      <div class="card-figures">Jhalkari Bai &nbsp;·&nbsp; Tribal women of Chotanagpur</div>
+    </div>
+
+    <div class="card c8">
+      <div class="card-num">08</div>
+      <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
+      <div class="card-title">Legacy, Impact &amp; Post-Independence Role</div>
+      <div class="card-rule"></div>
+      <div class="card-content"><ul>
+        <li>Shaped Constitutional equality clauses</li>
+        <li>Transformed gender norms permanently</li>
+        <li>Won universal voting rights</li>
+        <li>Seeded modern feminist movements</li>
+      </ul></div>
+      <div class="card-figures">Vijaya Lakshmi Pandit &nbsp;·&nbsp; Rajkumari Amrit Kaur</div>
+    </div>
+
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline-wrap">
+    <div class="timeline-strip">
+      <div class="tl-item"><span class="tl-year">1817</span><span class="tl-event">Savitribai born</span></div>
+      <div class="tl-item"><span class="tl-year">1905</span><span class="tl-event">Swadeshi agitation</span></div>
+      <div class="tl-item"><span class="tl-year">1917</span><span class="tl-event">WIA founded</span></div>
+      <div class="tl-item"><span class="tl-year">1920</span><span class="tl-event">Non-Cooperation</span></div>
+      <div class="tl-item"><span class="tl-year">1930</span><span class="tl-event">Salt Satyagraha</span></div>
+      <div class="tl-item"><span class="tl-year">1932</span><span class="tl-event">Civil Disobedience</span></div>
+      <div class="tl-item"><span class="tl-year">1942</span><span class="tl-event">Quit India</span></div>
+      <div class="tl-item"><span class="tl-year">1947</span><span class="tl-event">Independence</span></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-divider"></div>
+    <div class="footer-quote">
+      "No nation can rise to the height of glory unless your women are side by side with you."<br>
+      <em>— Indian National Movement Heritage</em>
+    </div>
+    <div class="footer-label">Poster Presentation &nbsp;·&nbsp; Indian History &nbsp;·&nbsp; Group of 8</div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────
+  const overlay = document.getElementById('wc-overlay');
+  const hint    = document.getElementById('esc-hint');
+  let hideHintTimer = null;
+  let hideOverlayTimer = null;
+  let isFullscreen = false;
+
+  // ── Launch fullscreen on page open ────────────────────────────────
+  function enterFullscreen() {
+    const el = document.documentElement;
+    const rq = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (rq) {
+      rq.call(el).then(() => {
+        document.body.classList.add('is-fullscreen');
+        isFullscreen = true;
+        showEscHint();
+      }).catch(() => {});
+    }
+  }
+
+  function exitFullscreen() {
+    const ex = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if (ex) {
+      ex.call(document).then(() => {
+        document.body.classList.remove('is-fullscreen');
+        isFullscreen = false;
+      }).catch(() => {});
+    }
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen) exitFullscreen();
+    else enterFullscreen();
+  }
+
+  // Attempt fullscreen as soon as user interacts (required by browsers)
+  window.addEventListener('load', () => {
+    // Try immediate (works if page was opened via user action)
+    enterFullscreen();
+  });
+
+  // Also try on first click/key in case auto was blocked
+  const tryOnce = () => { enterFullscreen(); document.removeEventListener('click', tryOnce); document.removeEventListener('keydown', tryOnce); };
+  document.addEventListener('click', tryOnce);
+  document.addEventListener('keydown', tryOnce);
+
+  // Sync class when browser exits fullscreen via its own UI
+  document.addEventListener('fullscreenchange', () => {
+    isFullscreen = !!document.fullscreenElement;
+    document.body.classList.toggle('is-fullscreen', isFullscreen);
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    isFullscreen = !!(document.webkitFullscreenElement);
+    document.body.classList.toggle('is-fullscreen', isFullscreen);
+  });
+
+  // ── ESC key → show / hide overlay ─────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      // Browser exits fullscreen on ESC automatically; we just show controls
+      showOverlay();
+    }
+  });
+
+  function showOverlay() {
+    overlay.classList.add('visible');
+    hint.classList.add('hidden');
+    clearTimeout(hideOverlayTimer);
+    hideOverlayTimer = setTimeout(hideOverlay, 4000);
+  }
+
+  function hideOverlay() {
+    overlay.classList.remove('visible');
+    if (isFullscreen) showEscHint();
+  }
+
+  function showEscHint() {
+    hint.classList.remove('hidden');
+    clearTimeout(hideHintTimer);
+    hideHintTimer = setTimeout(() => {
+      hint.classList.add('hidden');
+    }, 3500);
+  }
+
+  // Show overlay briefly when hovering top edge
+  document.addEventListener('mousemove', (e) => {
+    if (e.clientY < 60 && isFullscreen) {
+      showOverlay();
+    }
+  });
+</script>
+</body>
+</html>
